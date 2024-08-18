@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  home-app-deployment
+  labels:
+    name:  home-app-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: home-app-pod
+  strategy:
+    rollingUpdate:
+      maxSurge: 4
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: home-app-pod
+    spec:
+      containers:
+      - image: k8sacr.azurecr.io/home-app:latest
+        name:  home-app-con
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-app-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+  selector:
+    name: home-app-pod
+
+
+# # ---
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: deploy-service
+# spec:
+#   type: LoadBalancer
+#   ports:
+#     - port: 30001
+#       targetPort: 8080
+#       protocol: TCP
+#   selector:
+#       name: app-pod
